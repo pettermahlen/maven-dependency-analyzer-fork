@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * Tests <code>ProjectDependencyAnalyzerException</code>.
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: ProjectDependencyAnalyzerExceptionTest.java 661727 2008-05-30 14:21:49Z bentmann $
  * @see ProjectDependencyAnalyzerException
  */
 public class ProjectDependencyAnalyzerExceptionTest extends TestCase

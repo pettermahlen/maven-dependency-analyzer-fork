@@ -25,7 +25,7 @@ import jarWithTestDependency.project1.Project1;
  * 
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: Project2.java 661727 2008-05-30 14:21:49Z bentmann $
  */
 public class Project2
 {

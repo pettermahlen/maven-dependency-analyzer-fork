@@ -30,7 +30,7 @@ import org.apache.maven.shared.dependency.analyzer.DependencyAnalyzer;
  * ASMDependencyAnalyzer 
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: ASMDependencyAnalyzer.java 661727 2008-05-30 14:21:49Z bentmann $
  * @plexus.component role="org.apache.maven.shared.dependency.analyzer.DependencyAnalyzer"
  */
 public class ASMDependencyAnalyzer

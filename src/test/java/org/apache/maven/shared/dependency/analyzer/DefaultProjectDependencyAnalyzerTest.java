@@ -22,7 +22,10 @@ package org.apache.maven.shared.dependency.analyzer;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -40,13 +43,13 @@ import org.codehaus.plexus.PlexusTestCase;
 
 /**
  * Tests <code>DefaultProjectDependencyAnalyzer</code>.
- * 
+ *
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: DefaultProjectDependencyAnalyzerTest.java 661727 2008-05-30 14:21:49Z bentmann $
  * @see DefaultProjectDependencyAnalyzer
  */
 public class DefaultProjectDependencyAnalyzerTest
-    extends PlexusTestCase
+        extends PlexusTestCase
 {
     // fields -----------------------------------------------------------------
 
@@ -62,7 +65,7 @@ public class DefaultProjectDependencyAnalyzerTest
      * @see org.codehaus.plexus.PlexusTestCase#setUp()
      */
     protected void setUp()
-        throws Exception
+            throws Exception
     {
         super.setUp();
 
@@ -82,7 +85,7 @@ public class DefaultProjectDependencyAnalyzerTest
 
         MavenProject project = getProject( "pom/pom.xml" );
 
-        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze( project );
+        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze( project, Collections.emptyList() );
 
         ProjectDependencyAnalysis expectedAnalysis = new ProjectDependencyAnalysis();
 
@@ -96,7 +99,7 @@ public class DefaultProjectDependencyAnalyzerTest
 
         MavenProject project = getProject( "jarWithNoDependencies/pom.xml" );
 
-        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze( project );
+        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze( project, Collections.emptyList() );
 
         ProjectDependencyAnalysis expectedAnalysis = new ProjectDependencyAnalysis();
 
@@ -110,13 +113,13 @@ public class DefaultProjectDependencyAnalyzerTest
 
         MavenProject project2 = getProject( "jarWithCompileDependency/project2/pom.xml" );
 
-        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze( project2 );
+        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze( project2, Collections.emptyList() );
 
         Artifact project1 =
             createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "jarWithCompileDependency1", "jar",
                             "1.0", "compile" );
         Set usedDeclaredArtifacts = Collections.singleton( project1 );
-        ProjectDependencyAnalysis expectedAnalysis = new ProjectDependencyAnalysis( usedDeclaredArtifacts, null, null );
+        ProjectDependencyAnalysis expectedAnalysis = new ProjectDependencyAnalysis( usedDeclaredArtifacts, null, null, null);
 
         assertEquals( expectedAnalysis, actualAnalysis );
     }
@@ -128,7 +131,7 @@ public class DefaultProjectDependencyAnalyzerTest
 
         MavenProject project2 = getProject( "jarWithTestDependency/project2/pom.xml" );
 
-        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze( project2 );
+        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze( project2, Collections.emptyList() );
 
         Artifact project1 =
             createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "jarWithTestDependency1", "jar",
@@ -140,7 +143,130 @@ public class DefaultProjectDependencyAnalyzerTest
         Set unusedDeclaredArtifacts = Collections.singleton( junit );
 
         ProjectDependencyAnalysis expectedAnalysis =
-            new ProjectDependencyAnalysis( usedDeclaredArtifacts, null, unusedDeclaredArtifacts );
+            new ProjectDependencyAnalysis( usedDeclaredArtifacts, null, unusedDeclaredArtifacts, null);
+
+        assertEquals( expectedAnalysis, actualAnalysis );
+    }
+
+    public void testWithOneDuplicateClass() throws Exception {
+        compileProject("duplicateClasses/pom.xml");
+
+        MavenProject project = getProject( "duplicateClasses/oneDuplicate/pom.xml");
+
+        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze(project, Collections.emptyList());
+
+        Artifact project1 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project1", "jar",
+                        "1.0", "compile" );
+        Artifact project2 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project2", "jar",
+                        "1.0", "compile" );
+
+        Set artifacts = new HashSet();
+
+        artifacts.add(project1);
+        artifacts.add(project2);
+
+        Map duplicates = new HashMap();
+        duplicates.put("duplicateClasses.Duplicated", artifacts);
+
+        ProjectDependencyAnalysis expectedAnalysis =
+                new ProjectDependencyAnalysis( artifacts, null, null, duplicates);
+
+        assertEquals( expectedAnalysis, actualAnalysis );
+    }
+
+
+    public void testWithOneTriplicateClass() throws Exception {
+        compileProject("duplicateClasses/pom.xml");
+
+        MavenProject project = getProject( "duplicateClasses/oneTriplicate/pom.xml");
+
+        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze(project, Collections.emptyList());
+
+        Artifact project1 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project1", "jar",
+                        "1.0", "compile" );
+        Artifact project2 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project2", "jar",
+                        "1.0", "compile" );
+        Artifact project3 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project3", "jar",
+                        "1.0", "compile" );
+
+        Set artifacts = new HashSet();
+
+        artifacts.add(project1);
+        artifacts.add(project2);
+        artifacts.add(project3);
+
+        Map duplicates = new HashMap();
+        duplicates.put("duplicateClasses.Duplicated", artifacts);
+
+        ProjectDependencyAnalysis expectedAnalysis =
+                new ProjectDependencyAnalysis( artifacts, null, null, duplicates);
+
+        assertEquals( expectedAnalysis, actualAnalysis );
+    }
+
+    public void testTransitiveDuplicateClass() throws Exception {
+        compileProject("duplicateClasses/pom.xml");
+
+        MavenProject project = getProject( "duplicateClasses/transitiveDuplicate/pom.xml");
+
+        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze(project, Collections.emptyList());
+
+        Artifact project1 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project1", "jar",
+                        "1.0", "compile" );
+        Artifact project2 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project2", "jar",
+                        "1.0", "compile" );
+        Artifact project4 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project4", "jar",
+                        "1.0", "compile" );
+
+        Set artifacts = new HashSet();
+
+        artifacts.add(project1);
+        artifacts.add(project2);
+
+        Map duplicates = new HashMap();
+        duplicates.put("duplicateClasses.Duplicated", new HashSet(artifacts));
+
+        artifacts.remove(project2);
+        artifacts.add(project4);
+
+        ProjectDependencyAnalysis expectedAnalysis =
+                new ProjectDependencyAnalysis( artifacts, null, null, duplicates);
+
+        assertEquals( expectedAnalysis, actualAnalysis );
+    }
+
+
+    public void testDuplicateClassExcludes() throws Exception {
+        compileProject("duplicateClasses/pom.xml");
+
+        MavenProject project = getProject( "duplicateClasses/oneDuplicate/pom.xml");
+
+        ProjectDependencyAnalysis actualAnalysis = analyzer.analyze(project, Arrays.asList(new String[] { "duplicateClasses" } ));
+
+        Artifact project1 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project1", "jar",
+                        "1.0", "compile" );
+        Artifact project2 =
+                createArtifact( "org.apache.maven.shared.dependency-analyzer.tests", "duplicateClasses-project2", "jar",
+                        "1.0", "compile" );
+
+        Set artifacts = new HashSet();
+
+        artifacts.add(project1);
+        artifacts.add(project2);
+
+        Map duplicates = new HashMap();
+
+        ProjectDependencyAnalysis expectedAnalysis =
+                new ProjectDependencyAnalysis( artifacts, null, null, duplicates);
 
         assertEquals( expectedAnalysis, actualAnalysis );
     }
@@ -148,7 +274,7 @@ public class DefaultProjectDependencyAnalyzerTest
     // private methods --------------------------------------------------------
 
     private void compileProject( String pomPath )
-        throws TestToolsException
+            throws TestToolsException
     {
         File pom = getTestFile( "target/test-classes/", pomPath );
         Properties properties = new Properties();
@@ -163,7 +289,7 @@ public class DefaultProjectDependencyAnalyzerTest
     }
 
     private MavenProject getProject( String pomPath )
-        throws TestToolsException
+            throws TestToolsException
     {
         File pom = getTestFile( "target/test-classes/", pomPath );
 

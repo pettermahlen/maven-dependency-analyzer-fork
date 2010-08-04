@@ -36,7 +36,7 @@ import org.objectweb.asm.signature.SignatureVisitor;
  * Inspired by <code>org.objectweb.asm.depend.DependencyVisitor</code> in the ASM dependencies example.
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: DependencyVisitor.java 661727 2008-05-30 14:21:49Z bentmann $
  */
 public class DependencyVisitor
     implements AnnotationVisitor, SignatureVisitor, ClassVisitor, FieldVisitor, MethodVisitor

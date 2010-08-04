@@ -31,7 +31,7 @@ import org.objectweb.asm.ClassReader;
  * 
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: DependencyClassFileVisitor.java 661727 2008-05-30 14:21:49Z bentmann $
  */
 public class DependencyClassFileVisitor
     implements ClassFileVisitor

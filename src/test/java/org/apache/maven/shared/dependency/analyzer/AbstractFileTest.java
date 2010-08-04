@@ -34,7 +34,7 @@ import org.jmock.MockObjectTestCase;
  * 
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: AbstractFileTest.java 661727 2008-05-30 14:21:49Z bentmann $
  */
 public abstract class AbstractFileTest extends MockObjectTestCase
 {

@@ -30,7 +30,7 @@ import java.util.jar.JarOutputStream;
  * Tests <code>DefaultClassAnalyzer</code>.
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: DefaultClassAnalyzerTest.java 661727 2008-05-30 14:21:49Z bentmann $
  * @see DefaultClassAnalyzer
  */
 public class DefaultClassAnalyzerTest extends AbstractFileTest

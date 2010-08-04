@@ -19,7 +19,9 @@ package org.apache.maven.shared.dependency.analyzer;
  * under the License.
  */
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -28,7 +30,7 @@ import junit.framework.TestCase;
  * Tests <code>ProjectDependencyAnalysis</code>.
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: ProjectDependencyAnalysisTest.java 661727 2008-05-30 14:21:49Z bentmann $
  * @see ProjectDependencyAnalysis
  */
 public class ProjectDependencyAnalysisTest extends TestCase
@@ -40,12 +42,14 @@ public class ProjectDependencyAnalysisTest extends TestCase
         Set usedDeclaredArtifacts = new HashSet();
         Set usedUndeclaredArtifacts = new HashSet();
         Set unusedDeclaredArtifacts = new HashSet();
+        Map duplicateClasses = new HashMap();
 
         ProjectDependencyAnalysis analysis =
-            new ProjectDependencyAnalysis( usedDeclaredArtifacts, usedUndeclaredArtifacts, unusedDeclaredArtifacts );
+            new ProjectDependencyAnalysis( usedDeclaredArtifacts, usedUndeclaredArtifacts, unusedDeclaredArtifacts, duplicateClasses );
 
         assertEquals( usedDeclaredArtifacts, analysis.getUsedDeclaredArtifacts() );
         assertEquals( usedUndeclaredArtifacts, analysis.getUsedUndeclaredArtifacts() );
         assertEquals( unusedDeclaredArtifacts, analysis.getUnusedDeclaredArtifacts() );
+        assertEquals( duplicateClasses, analysis.getDuplicateClasses() );
     }
 }

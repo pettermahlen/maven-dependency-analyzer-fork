@@ -21,11 +21,13 @@ package org.apache.maven.shared.dependency.analyzer;
 
 import org.apache.maven.project.MavenProject;
 
+import java.util.List;
+
 /**
  * 
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: ProjectDependencyAnalyzer.java 661727 2008-05-30 14:21:49Z bentmann $
  */
 public interface ProjectDependencyAnalyzer
 {
@@ -35,6 +37,6 @@ public interface ProjectDependencyAnalyzer
 
     // public methods ---------------------------------------------------------
 
-    ProjectDependencyAnalysis analyze( MavenProject project)
+    ProjectDependencyAnalysis analyze( MavenProject project, List excludes)
         throws ProjectDependencyAnalyzerException;
 }

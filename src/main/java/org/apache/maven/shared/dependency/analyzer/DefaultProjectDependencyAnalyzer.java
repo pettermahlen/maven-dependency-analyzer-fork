@@ -23,10 +23,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,7 +39,7 @@ import org.apache.maven.project.MavenProject;
  * 
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: DefaultProjectDependencyAnalyzer.java 661727 2008-05-30 14:21:49Z bentmann $
  * @plexus.component role="org.apache.maven.shared.dependency.analyzer.ProjectDependencyAnalyzer"
  */
 public class DefaultProjectDependencyAnalyzer
@@ -64,12 +66,14 @@ public class DefaultProjectDependencyAnalyzer
     /*
      * @see org.apache.maven.shared.dependency.analyzer.ProjectDependencyAnalyzer#analyze(org.apache.maven.project.MavenProject)
      */
-    public ProjectDependencyAnalysis analyze( MavenProject project )
+    public ProjectDependencyAnalysis analyze( MavenProject project, List excludes )
         throws ProjectDependencyAnalyzerException
     {
         try
         {
             Map artifactClassMap = buildArtifactClassMap( project );
+
+            Map duplicateClasses = buildDuplicateClasses( artifactClassMap, excludes );
 
             Set dependencyClasses = buildDependencyClasses( project );
 
@@ -87,14 +91,13 @@ public class DefaultProjectDependencyAnalyzer
             unusedDeclaredArtifacts = removeAll( unusedDeclaredArtifacts, usedArtifacts );
 
             return new ProjectDependencyAnalysis( usedDeclaredArtifacts, usedUndeclaredArtifacts,
-                                                  unusedDeclaredArtifacts );
+                                                  unusedDeclaredArtifacts, duplicateClasses );
         }
         catch ( IOException exception )
         {
             throw new ProjectDependencyAnalyzerException( "Cannot analyze dependencies", exception );
         }
     }
-
     /**
      * This method defines a new way to remove the artifacts by using the
      * conflict id. We don't care about the version here because there can be
@@ -157,6 +160,78 @@ public class DefaultProjectDependencyAnalyzer
         }
 
         return artifactClassMap;
+    }
+
+
+    private Map buildDuplicateClasses( Map artifactClassMap, List excludes )
+    {
+        // map in: artifact -> Set<class name>
+        // map out: class name -> Set<Artifact>
+
+        Map classNameToArtifactMap = new HashMap();
+
+        populateClassNameToArtifactMap(artifactClassMap, excludes, classNameToArtifactMap);
+
+        removeClassesDefinedOnce(classNameToArtifactMap);
+
+        return classNameToArtifactMap;
+    }
+
+    private void populateClassNameToArtifactMap(Map artifactClassMap, List excludes, Map result) {
+        for ( Iterator keyIterator = artifactClassMap.keySet().iterator(); keyIterator.hasNext(); )
+        {
+            Artifact artifact = (Artifact) keyIterator.next();
+
+            Set classNames = (Set) artifactClassMap.get(artifact);
+
+            for ( Iterator classNamesIterator = classNames.iterator(); classNamesIterator.hasNext(); )
+            {
+                String className = (String) classNamesIterator.next();
+
+                if ( exclude( className, excludes ) )
+                {
+                    continue;
+                }
+
+                Set artifactsDefiningClass = (Set) result.get( className );
+
+                if ( artifactsDefiningClass == null )
+                {
+                    artifactsDefiningClass = new HashSet();
+                    result.put( className, artifactsDefiningClass );
+                }
+
+                artifactsDefiningClass.add( artifact );
+            }
+        }
+    }
+
+    private boolean exclude( String className, List excludes ) {
+        for (Iterator iter = excludes.iterator(); iter.hasNext(); )
+        {
+            String prefix = (String) iter.next();
+
+            if ( className.startsWith( prefix ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void removeClassesDefinedOnce(Map classNameToArtifactMap) {
+        for (Iterator filterIterator = classNameToArtifactMap.keySet().iterator(); filterIterator.hasNext(); )
+        {
+            String className = (String) filterIterator.next();
+
+            Set artifactsDefiningClass = (Set) classNameToArtifactMap.get( className );
+
+            if ( artifactsDefiningClass.size() == 1 )
+            {
+                filterIterator.remove();
+            }
+        }
     }
 
     private Set buildDependencyClasses( MavenProject project )

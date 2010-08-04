@@ -23,7 +23,7 @@ package org.apache.maven.shared.dependency.analyzer;
  * 
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: ProjectDependencyAnalyzerException.java 661727 2008-05-30 14:21:49Z bentmann $
  */
 public class ProjectDependencyAnalyzerException
     extends Exception

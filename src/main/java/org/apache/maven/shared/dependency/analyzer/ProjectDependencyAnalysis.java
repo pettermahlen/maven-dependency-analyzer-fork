@@ -19,15 +19,13 @@ package org.apache.maven.shared.dependency.analyzer;
  * under the License.
  */
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: ProjectDependencyAnalysis.java 661727 2008-05-30 14:21:49Z bentmann $
  */
 public class ProjectDependencyAnalysis
 {
@@ -39,19 +37,22 @@ public class ProjectDependencyAnalysis
 
     private final Set unusedDeclaredArtifacts;
 
+    private final Map duplicateClasses;
+
     // constructors -----------------------------------------------------------
     
     public ProjectDependencyAnalysis()
     {
-        this( null, null, null );
+        this( null, null, null, null );
     }
 
     public ProjectDependencyAnalysis( Set usedDeclaredArtifacts, Set usedUndeclaredArtifacts,
-                                      Set unusedDeclaredArtifacts )
+                                      Set unusedDeclaredArtifacts, Map duplicateClasses)
     {
         this.usedDeclaredArtifacts = safeCopy(usedDeclaredArtifacts);
         this.usedUndeclaredArtifacts = safeCopy(usedUndeclaredArtifacts);
         this.unusedDeclaredArtifacts = safeCopy(unusedDeclaredArtifacts);
+        this.duplicateClasses = safeCopy(duplicateClasses);
     }
 
     // public methods ---------------------------------------------------------
@@ -70,7 +71,11 @@ public class ProjectDependencyAnalysis
     {
         return unusedDeclaredArtifacts;
     }
-    
+
+    public Map getDuplicateClasses() {
+        return duplicateClasses;
+    }
+
     // Object methods ---------------------------------------------------------
     
     /*
@@ -81,7 +86,8 @@ public class ProjectDependencyAnalysis
         int hashCode = getUsedDeclaredArtifacts().hashCode();
         hashCode = (hashCode * 37) + getUsedUndeclaredArtifacts().hashCode();
         hashCode = (hashCode * 37) + getUnusedDeclaredArtifacts().hashCode();
-        
+        hashCode = (hashCode * 37) + getDuplicateClasses().hashCode();
+
         return hashCode;
     }
     
@@ -98,7 +104,8 @@ public class ProjectDependencyAnalysis
             
             equals = getUsedDeclaredArtifacts().equals( analysis.getUsedDeclaredArtifacts() )
                 && getUsedUndeclaredArtifacts().equals( analysis.getUsedUndeclaredArtifacts() )
-                && getUnusedDeclaredArtifacts().equals( analysis.getUnusedDeclaredArtifacts() );
+                && getUnusedDeclaredArtifacts().equals( analysis.getUnusedDeclaredArtifacts() )
+                && getDuplicateClasses().equals(analysis.getDuplicateClasses());
         }
         else
         {
@@ -140,6 +147,16 @@ public class ProjectDependencyAnalysis
             buffer.append( "unusedDeclaredArtifacts=" ).append( getUnusedDeclaredArtifacts() );
         }
 
+        if ( !getDuplicateClasses().isEmpty() )
+        {
+            if ( buffer.length() > 0 )
+            {
+                buffer.append( "," );
+            }
+
+            buffer.append( "duplicateClasses=" ).append( getDuplicateClasses() ); 
+        }
+
         buffer.insert( 0, "[" );
         buffer.insert( 0, getClass().getName() );
         
@@ -153,5 +170,10 @@ public class ProjectDependencyAnalysis
     private Set safeCopy( Set set )
     {
         return ( set == null ) ? Collections.EMPTY_SET : Collections.unmodifiableSet( new LinkedHashSet( set ) );
+    }
+
+    private Map safeCopy( Map map )
+    {
+        return ( map == null ) ? Collections.EMPTY_MAP : Collections.unmodifiableMap( new HashMap( map ) );
     }
 }

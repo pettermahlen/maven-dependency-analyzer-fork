@@ -32,7 +32,7 @@ import org.jmock.Mock;
  * Tests <code>ClassFileVisitorUtils</code>.
  * 
  * @author <a href="mailto:markhobson@gmail.com">Mark Hobson</a>
- * @version $Id$
+ * @version $Id: ClassFileVisitorUtilsTest.java 661727 2008-05-30 14:21:49Z bentmann $
  * @see ClassFileVisitorUtils
  */
 public class ClassFileVisitorUtilsTest
